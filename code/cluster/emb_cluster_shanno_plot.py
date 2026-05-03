@@ -8,21 +8,21 @@
 '''
     shannon diversity for emb cluster，boxplot
 '''
-import os
+from pathlib import Path
 from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from statannotations.Annotator import Annotator
 
 if __name__ == '__main__':
-    os.chdir('../../')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
     datestamp = datetime.now()
     date = f'{datestamp.year}{datestamp.month:02d}{datestamp.day:02d}'
     print(date)
     # input
-    shan_summary = pd.read_excel('../result/deepair/embedding/shannon_eval_250927.xlsx', index_col=0).T
+    shan_summary = pd.read_excel(PROJECT_ROOT / 'result/deepair/embedding/shannon_eval_250927.xlsx', index_col=0).T
 
     # boxplot
     Types = ['CDR3B', 'Vbeta', 'CDR3s', 'Vab']
@@ -66,5 +66,5 @@ if __name__ == '__main__':
     plt.yticks(fontsize=20)
     plt.ylabel('Shannon Index', fontsize=20)
     plt.legend(loc='upper left', fontsize=24)
-    plt.savefig(f'../result/deepair/embedding/leiden_cluster_peptide_shan_eval_{date}.pdf',
+    plt.savefig(PROJECT_ROOT / f'result/deepair/embedding/leiden_cluster_peptide_shan_eval_{date}.pdf',
                 dpi=300, bbox_inches='tight')

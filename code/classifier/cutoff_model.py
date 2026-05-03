@@ -5,7 +5,8 @@
 # @Time    : 2025/9/22
 # @Author  : Qiang Huang
 # @File    :
-import os
+
+from pathlib import Path
 from datetime import datetime
 import numpy as np
 import pandas as pd
@@ -49,7 +50,8 @@ def predict_new(features, cutoffs, cdr3=False):
     return label
 #
 if __name__ == "__main__":
-    os.chdir('../../')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
     current_date = datetime.now()
     datestamp = f'{current_date.year}{current_date.month:02d}{current_date.day:02d}'
     models = ['tfold-TCR', 'AF3']
@@ -58,17 +60,19 @@ if __name__ == "__main__":
              'paired': ['Vab'],
              'single': ['Valpha', 'Vbeta']
              }
+    n_splits = 3
 
     # save dict
     model_dict = {}
     for model in models:
+        input_file = PROJECT_ROOT / f'result/train_model/make_{model}_modelling_mtx_250922.xlsx'
+        output_dict = PROJECT_ROOT / f'result/train_model/{model}_cutoff_model_cv_{n_splits}_dict.json'
+        output_df = PROJECT_ROOT / f'result/train_model/{model}_train_model_cv_{n_splits}_df.xlsx'
         for mode, fea_ls in modes.items():
             mod = mode.split('_')[0]
             for feat in fea_ls:
                 mode_name = mod + '_' + feat
-                outdir = f'../result/cutoff_grid/{model}/{datestamp}'
-                os.makedirs(outdir, exist_ok=True)
-                model_mtx = pd.read_excel(f'../result/train_model/simplify/make_{model}_modelling_mtx_250922.xlsx',
+                model_mtx = pd.read_excel(input_file,
                                           sheet_name=mode_name, index_col=0)
                 X = model_mtx.iloc[:, :-1].values
                 y = model_mtx.iloc[:, -1].values
@@ -79,7 +83,6 @@ if __name__ == "__main__":
                     cutoffs_f1 = get_candidate_cutoffs(X[:, 0])
                     cutoffs_f2 = get_candidate_cutoffs(X[:, 1])
                 # data split
-                n_splits = 3
                 skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
                 best_mean_auc = 0
                 best_cutoff_combination = None
@@ -136,7 +139,7 @@ if __name__ == "__main__":
                                          'best_cutoff_combination': best_cutoff_combination,
                                          'cv3_results': cv3_results
                                          }
-        with open(f'../result/train_model/simplify/{model}_cutoff_model_cv_{n_splits}_dict.json', mode='w', encoding='utf8') as f:
+        with open(output_dict, mode='w', encoding='utf8') as f:
             json.dump(model_dict, f, ensure_ascii=False, indent=4)
         # excel
         best_mean_auc_ls = []
@@ -156,4 +159,4 @@ if __name__ == "__main__":
                                    'Cutoff_1': cutoff_1_ls,
                                    'Cutoff_2': cutoff_2_ls,
                                    })
-        summary_df.to_excel(f'../result/train_model/simplify/{model}_train_model_cv_{n_splits}_df.xlsx')
+        summary_df.to_excel(output_df)

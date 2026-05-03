@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
-
+from pathlib import Path
 # global
 plt.rcParams['axes.titlesize'] = 20 
 plt.rcParams['axes.labelsize'] = 20 
@@ -183,8 +183,9 @@ def scatter_plot(cdr3_df, input_file, sheet_name, domain_ls, target,
 
 
 if __name__ == '__main__':
-    os.chdir('../../')
-    tcr_df = pd.read_csv('../result/annotation/tcr_anno_df.csv')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
+    tcr_df = pd.read_csv(PROJECT_ROOT / 'result/annotation/tcr_anno_df.csv')
     tcr_df['CDR3_length'] = tcr_df['CDR3'].map(lambda x: len(x))
     tcr_df['Domain'] = ['A-CDR3', 'B-CDR3'] * 51
     tcr_df['PDB_ID'] = tcr_df['Name'].map(lambda x: x.split('_')[0])
@@ -192,34 +193,34 @@ if __name__ == '__main__':
 
     # plddt_rmsd - single
     corr_df_w, _, mask_df_w = corr_stat(cdr3_df=cdr3_df,
-              input_file='../result/rmsd/rmsd_summary_single.xlsx',
+              input_file=PROJECT_ROOT / 'result/rmsd/rmsd_summary_single.xlsx',
               sheet_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
               domain_ls=['A-CDR3', 'B-CDR3'],
-              out_file='../result/corr/corr_single_cdr3_rmsd_0922.xlsx',
+              out_file=PROJECT_ROOT / 'result/corr/corr_single_cdr3_rmsd_0922.xlsx',
               method=None)
 
     scatter_plot(cdr3_df=cdr3_df,
-                 input_file='../result/rmsd/rmsd_summary_single.xlsx',
+                 input_file=PROJECT_ROOT / 'result/rmsd/rmsd_summary_single.xlsx',
                  sheet_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
                  domain_ls=['A-CDR3', 'B-CDR3'],
                  target='RMSD',
                  corr_df_w=corr_df_w, mask_df_w=mask_df_w,
                  show=False,
-                 fig_file='../result/corr/scatterplot_single_cdr3_rmsd.pdf')
+                 fig_file=PROJECT_ROOT / 'result/corr/scatterplot_single_cdr3_rmsd.pdf')
 
     # plddt_rmsd - paired
     corr_df_w, _, label_df_w = corr_stat(cdr3_df=cdr3_df,
-                                      input_file='../result/rmsd/rmsd_summary_paired.xlsx',
+                                      input_file=PROJECT_ROOT / 'result/rmsd/rmsd_summary_paired.xlsx',
                                       sheet_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
                                       domain_ls=['A-CDR3', 'B-CDR3'],
-                                      out_file='../result/corr/corr_paired_cdr3_rmsd_0922.xlsx',
+                                      out_file=PROJECT_ROOT / 'result/corr/corr_paired_cdr3_rmsd_0922.xlsx',
                                       method=None)
 
     scatter_plot(cdr3_df=cdr3_df,
-                 input_file='../result/rmsd/rmsd_summary_paired.xlsx',
+                 input_file=PROJECT_ROOT / 'result/rmsd/rmsd_summary_paired.xlsx',
                  sheet_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
                  domain_ls=['A-CDR3', 'B-CDR3'],
                  target='RMSD',
                  corr_df_w=corr_df_w, mask_df_w=mask_df_w,
                  show=False,
-                 fig_file='../result/corr/scatterplot_paired_cdr3_rmsd.pdf')
+                 fig_file=PROJECT_ROOT / 'result/corr/scatterplot_paired_cdr3_rmsd.pdf')

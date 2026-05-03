@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
-
+from pathlib import Path
 # global setting
 plt.rcParams['axes.titlesize'] = 20 
 plt.rcParams['axes.labelsize'] = 20  
@@ -136,16 +136,17 @@ def scatter_plot(input_file1, input_file2, model_name, show=True, fig_file=None)
 
 
 if __name__ == '__main__':
-    os.chdir('../../')
-    corr_stat(input_file1='../result/ptm/ptm_score.xlsx',
-              input_file2='../result/dockq/DockQ_Models_summary.xlsx',
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
+    corr_stat(input_file1=PROJECT_ROOT / 'result/ptm/ptm_score.xlsx',
+              input_file2=PROJECT_ROOT / 'result/dockq/DockQ_Models_summary.xlsx',
               model_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
-              out_file='../result/corr/corr_paired_ptm_dockq.xlsx',
+              out_file=PROJECT_ROOT / 'result/corr/corr_paired_ptm_dockq.xlsx',
               method=None)
 
-    scatter_plot(input_file1='../result/ptm/ptm_score.xlsx',
-                 input_file2='../result/dockq/DockQ_Models_summary.xlsx',
+    scatter_plot(input_file1=PROJECT_ROOT / 'result/ptm/ptm_score.xlsx',
+                 input_file2=PROJECT_ROOT / 'result/dockq/DockQ_Models_summary.xlsx',
                  model_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
                  show=False,
-                 fig_file='../result/corr/scatterplot_paired_ptm_dockq.pdf')
+                 fig_file=PROJECT_ROOT / 'result/corr/scatterplot_paired_ptm_dockq.pdf')
 

@@ -9,8 +9,7 @@ import os
 import pymol
 from pymol import cmd
 import pandas as pd
-import json
-
+from pathlib import Path
 pymol.finish_launching(['pymol', '-c'])
 def calculate_monomer_rmsd(pred_path, crystal_file, chain_id, domain_sel=None, backbone=False):
     """
@@ -92,9 +91,9 @@ def stack_chain_out(rmsd_df, index_col, pdb_col, chain_col, new_colname):
     return rmsd_df_w
 
 if __name__ == '__main__':
-    #
-    os.chdir(r'D:\\USER\\Research\\TCRsructure\\code')
-    tcr_info = pd.read_csv('../result/annotation/tcr_anno_df.csv')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
+    tcr_info = pd.read_csv(PROJECT_ROOT / 'result/annotation/tcr_anno_df.csv')
     tcr_info['FW1_r'] = [get_region_range(x, y) for x, y in zip(tcr_info['FW1'], tcr_info['Vdomain'])]
     tcr_info['FW2_r'] = [get_region_range(x, y) for x, y in zip(tcr_info['FW2'], tcr_info['Vdomain'])]
     tcr_info['FW3_r'] = [get_region_range(x, y) for x, y in zip(tcr_info['FW3'], tcr_info['Vdomain'])]
@@ -105,16 +104,16 @@ if __name__ == '__main__':
     tcr_info['CDR3_r'] = [get_region_range(x, y) for x, y in zip(tcr_info['CDR3'], tcr_info['Vdomain'])]
     pdb_chains = tcr_info['Name']
 
-    fixed_dir = '../data/fixed_struc'
+    fixed_dir = PROJECT_ROOT / 'data/fixed_struc'
 
     af2_rmsd = {}
     af3_rmsd = {}
     tcrmodel2_rmsd = {}
     tfold_rmsd = {}
-    esmfold2_rmsd = {}
+    esmfold_rmsd = {}
     for idx, pdb_chain in enumerate(pdb_chains):
         pdb_id = pdb_chain.split('_')[0]
-        crystal_file = f'{fixed_dir}/{pdb_id}.pdb'
+        crystal_file = fixed_dir / f'{pdb_id}.pdb'
         tcr_sele = tcr_info[tcr_info['Name'] == pdb_chain][tcr_info.columns[tcr_info.columns.str.endswith('_r')]]
         if idx/2 == 0:
             chain_id = 'A'
@@ -124,25 +123,25 @@ if __name__ == '__main__':
             tcr_sele.index = ['B']
         range_dict = tcr_sele.T.to_dict()
         # af2
-        af2_file = f'../result/AF2/test_single/{pdb_chain}.pdb'
+        af2_file = PROJECT_ROOT / f'result/AF2/test_single/{pdb_chain}.pdb'
         chain_rmsd_af2, domain_rmsd_af2 = calculate_monomer_rmsd(af2_file, crystal_file, chain_id, range_dict)
         af2_rmsd[pdb_chain] = [chain_rmsd_af2] + list(domain_rmsd_af2.values())
         # af3
-        af3_file = f'../result/AF3/test_single/{pdb_chain}.cif'
+        af3_file = PROJECT_ROOT / f'result/AF3/test_single/{pdb_chain}.cif'
         chain_rmsd_af3, domain_rmsd_af3 = calculate_monomer_rmsd(af3_file, crystal_file, chain_id, range_dict)
         af3_rmsd[pdb_chain] = [chain_rmsd_af3] + list(domain_rmsd_af3.values())
         # TCRmodel2
-        tcrm2_file = f'../result/tcrmodel2/test_single/{pdb_chain}.pdb'
+        tcrm2_file = PROJECT_ROOT / f'result/tcrmodel2/test_single/{pdb_chain}.pdb'
         chain_rmsd_tcrm2, domain_rmsd_tcrm2 = calculate_monomer_rmsd(tcrm2_file, crystal_file, chain_id, range_dict)
         tcrmodel2_rmsd[pdb_chain] = [chain_rmsd_tcrm2] + list(domain_rmsd_tcrm2.values())
 
-        # ESMFold2
-        esmfold2_file = f'../result/ESMFold2/test_single/{pdb_chain}.pdb'
-        chain_rmsd_esm2, domain_rmsd_esm2 = calculate_monomer_rmsd(esmfold2_file, crystal_file, chain_id, range_dict)
-        esmfold2_rmsd[pdb_chain] = [chain_rmsd_esm2] + list(domain_rmsd_esm2.values())
+        # ESMFold
+        esmfold_file = PROJECT_ROOT / f'result/ESMFold/test_single/{pdb_chain}.pdb'
+        chain_rmsd_esm2, domain_rmsd_esm2 = calculate_monomer_rmsd(esmfold_file, crystal_file, chain_id, range_dict)
+        esmfold_rmsd[pdb_chain] = [chain_rmsd_esm2] + list(domain_rmsd_esm2.values())
 
         # tfold-TCR
-        tfold_file = f'../result/tfold/test_single/{pdb_chain}_TCR.pdb'
+        tfold_file = PROJECT_ROOT / f'result/tfold/test_single/{pdb_chain}_TCR.pdb'
         chain_rmsd_tfold, domain_rmsd_tfold = calculate_monomer_rmsd(tfold_file, crystal_file, chain_id, range_dict)
         tfold_rmsd[pdb_chain] = [chain_rmsd_tfold] + list(domain_rmsd_tfold.values())
 
@@ -163,13 +162,13 @@ if __name__ == '__main__':
     tfold_rmsd_df = stack_chain_out(tfold_rmsd_df, index_col='index', pdb_col='PDB_ID', chain_col='Chain',
                                   new_colname=col_names)
 
-    esmfold2_rmsd_df = pd.DataFrame(esmfold2_rmsd).T.reset_index()
-    esmfold2_rmsd_df = stack_chain_out(esmfold2_rmsd_df, index_col='index', pdb_col='PDB_ID', chain_col='Chain',
+    esmfold_rmsd_df = pd.DataFrame(esmfold_rmsd).T.reset_index()
+    esmfold_rmsd_df = stack_chain_out(esmfold_rmsd_df, index_col='index', pdb_col='PDB_ID', chain_col='Chain',
                                     new_colname=col_names)
 
-    with pd.ExcelWriter(f'../result/rmsd/rmsd_summary_test_single_0804.xlsx', engine='openpyxl') as writer:
+    with pd.ExcelWriter(PROJECT_ROOT / f'result/rmsd/rmsd_summary_single.xlsx', engine='openpyxl') as writer:
         af2_rmsd_df.to_excel(writer, sheet_name='AF2')
         af3_rmsd_df.to_excel(writer, sheet_name='AF3')
-        esmfold2_rmsd_df.to_excel(writer, sheet_name='ESMFoldv1')
+        esmfold_rmsd_df.to_excel(writer, sheet_name='ESMFoldv1')
         tcrmodel2_rmsd_df.to_excel(writer, sheet_name='TCRmodel2')
         tfold_rmsd_df.to_excel(writer, sheet_name='tfold-TCR')

@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 # @Project :
 # @Purpose :
-# @Time    : 2025/9/25
+# @Time    : 2025/10/22
 # @Author  : Qiang Huang
 # @File    :
 '''
     shannon diversity for struc cluster, boxplot
 '''
-import os
+from pathlib import Path
 from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -36,7 +36,8 @@ peptide_dict = {
 }
 
 if __name__ == '__main__':
-    os.chdir('../../')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
     datestamp = datetime.now()
     date = f'{str(datestamp.year)[2:]}{datestamp.month:02d}{datestamp.day:02d}'
     print(date)
@@ -47,9 +48,9 @@ if __name__ == '__main__':
 
     for tp in types:
         if tp in ['cdr3s', 'vab']:
-            id_peptide = pd.read_csv(f'../data/deepair/BRP_merging_final_250715.csv')
+            id_peptide = pd.read_csv(PROJECT_ROOT / 'data/deepair/BRP_merging_final_250715.csv')
         else:
-            id_peptide = pd.read_csv(f'../data/deepair/BRP_merging_final_250704.csv')
+            id_peptide = pd.read_csv(PROJECT_ROOT / 'data/deepair/BRP_merging_final_250704.csv')
         id_peptide['Peptide'] = id_peptide['Peptide'].map(peptide_dict)
 
         if tp == 'cdr3b':
@@ -62,7 +63,7 @@ if __name__ == '__main__':
             cov, iden, aln = 0.7, 0.6, 1
 
         for model in model_names:
-            cluster_file = f'../result/deepair/foldseek_grid/foldseek_grid_{model}/foldseek_{tp}_c_{cov}_i_{iden}_a_{aln}/_cluster.tsv'
+            cluster_file = PROJECT_ROOT / f'result/deepair/foldseek_grid/foldseek_grid_{model}/foldseek_{tp}_c_{cov}_i_{iden}_a_{aln}/_cluster.tsv'
             fs_cluster = pd.read_table(cluster_file, sep='\t', names=['cluster', 'ID'])
             fs_cluster['ID'] = fs_cluster['ID'].map(lambda x: int(x.split('_')[1]))
             cluster_count = fs_cluster['cluster'].value_counts()
@@ -79,7 +80,7 @@ if __name__ == '__main__':
             sh = cm.apply(axis=0, func=shannon_ind)
             sh_dict[f'{tp}_{model}'] = sh
     # add Gliph2 result
-    cluster_file = '../result/deepair/tcr_anno_gliph2_250722.xlsx'
+    cluster_file = PROJECT_ROOT / 'result/deepair/tcr_anno_gliph2_250722.xlsx'
     gl_cluster = pd.read_excel(cluster_file)
     gl_cluster = gl_cluster.rename(columns={'pattern': 'cluster'})
     gl_cluster['cluster'] = ['minor_cluster' if x in ['single', 'no_pattern'] else x for x in gl_cluster['cluster']]
@@ -96,7 +97,7 @@ if __name__ == '__main__':
 
     # merge
     shan_summary = pd.DataFrame(sh_dict, index=cm.columns)
-    shan_summary.to_excel(f'../result/deepair/foldseek_grid/foldseek_cluster_peptide_shan_eval_{date}.xlsx')
+    shan_summary.to_excel(PROJECT_ROOT / f'result/deepair/foldseek_grid/foldseek_cluster_peptide_shan_eval_{date}.xlsx')
 
     Types = ['cdr3b', 'vbeta', 'cdr3s', 'vab']
     models = ['AF3', 'tfold', 'Gliph2']
@@ -136,5 +137,5 @@ if __name__ == '__main__':
     plt.yticks(fontsize=20)
     plt.ylabel('Shannon Index', fontsize=20)
     plt.legend(loc='lower right', fontsize=24)
-    plt.savefig(f'../result/deepair/foldseek_grid/foldseek_cluster_peptide_shan_eval_{date}.pdf',
+    plt.savefig(PROJECT_ROOT / f'result/deepair/foldseek_grid/foldseek_cluster_peptide_shan_eval_{date}.pdf',
                 dpi=300, bbox_inches='tight')

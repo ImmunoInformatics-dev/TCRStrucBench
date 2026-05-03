@@ -10,7 +10,7 @@ from Bio import SeqIO
 import subprocess
 from anarci import anarci
 import pandas as pd
-
+from pathlib import Path
 def fasta_extract(fasta_file):
     '''
     :param fasta_file: fasta file
@@ -111,12 +111,14 @@ def update_vdomain(vdomain, wholeseq, match_len=5):
 
 
 if __name__ == '__main__':
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
     fasta_files = os.listdir('../data/modelling_fasta')
     sequence_dict = {}
     for i in fasta_files:
         pdb_id = i.split('.')[0]
         # print(pdb_id)
-        fasta_file = os.path.join('../data/modelling_fasta', i)
+        fasta_file = os.path.join(PROJECT_ROOT / 'data/modelling_fasta', i)
         sequence_dict.update(fasta_extract(fasta_file))
 
     tcr_dicts = {'Name': [], 'V_gene': [], 'J_gene': [], 'FW1': [], 'CDR1': [], 'FW2': [], 'CDR2': [], 'FW3': [], 'CDR3': [], 'FW4': [], 'Vdomain': []}
@@ -131,5 +133,5 @@ if __name__ == '__main__':
             tcr_dicts[kk].append(ss)
 
     tcr_anno_df = pd.DataFrame(tcr_dicts)
-    tcr_anno_df.to_csv('../result/tcr_anno_df.csv', index=False)
+    tcr_anno_df.to_csv(PROJECT_ROOT / 'result/annotation/tcr_anno_df.csv', index=False)
 

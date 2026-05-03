@@ -5,7 +5,7 @@
 # @Time    : 2025/9/27
 # @Author  : Qiang Huang
 # @File    :
-import os
+from pathlib import Path
 import anndata as ad
 import scanpy as sc
 import pandas as pd
@@ -46,33 +46,36 @@ def extrac_emb(tcr_anno, emb_dir, file_suffix):
 
 #
 if __name__ == "__main__":
-    os.chdir('../../')
-    tcr_anno_1 = pd.read_csv("../data/deepair/BRP_merging_final_250704.csv")
-    tcr_anno_2 = pd.read_csv("../data/deepair/BRP_merging_final_250715.csv")
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
+    tcr_anno_1 = pd.read_csv(PROJECT_ROOT / "data/deepair/BRP_merging_final_250704.csv")
+    tcr_anno_2 = pd.read_csv(PROJECT_ROOT / "data/deepair/BRP_merging_final_250715.csv")
     tcr_anno = tcr_anno_2[[x in tcr_anno_1['ID'].values for x in tcr_anno_2['ID'].values]]
-    model_names = ['tfold_tcr']
+    model_names = ['tfold_tcr', 'AF3', 'tcr_bert']
     suffix_names = ['sfea.npy']
     for m, s in zip(model_names, suffix_names):
         if m != 'AF3':
-            model_emb = extrac_emb(tcr_anno=tcr_anno,
-                                      emb_dir=f'../result/deepair/{m}_paired',
-                                      file_suffix=f'{s}')
-            np.save(f'../result/deepair/adata/{m}_cdr3s_emb_250927.npy', model_emb)
+            model_emb = extrac_emb(
+                tcr_anno=tcr_anno,
+                emb_dir=PROJECT_ROOT / f'result/deepair/{m}_paired',
+                file_suffix=f'{s}'
+            )
+            np.save(PROJECT_ROOT / f'result/deepair/adata/{m}_cdr3s_emb_250927.npy', model_emb)
         else:
-            model_emb = np.load(f'../result/deepair/{m}_cdr3s/{m}_cdr3s_emb_250927.npy')
+            model_emb = np.load(PROJECT_ROOT / f'result/deepair/{m}_cdr3s/{m}_cdr3s_emb_250927.npy')
 
 
         model_adata = ad.AnnData(X=model_emb, obs=tcr_anno)
         model_adata.obs_names = model_adata.obs['ID'].astype(str)
         model_adata.obs = model_adata.obs.drop(columns='ID')
 
-        model_adata.write_h5ad(filename=f'../result/deepair/adata/{m}_adata_250927.h5ad')
+        model_adata.write_h5ad(filename=PROJECT_ROOT / f'result/deepair/adata/{m}_adata_250927.h5ad')
         # PCA
         sc.pp.pca(model_adata, n_comps=50)
         sc.pp.neighbors(model_adata)
         sc.tl.umap(model_adata)
         sc.tl.tsne(model_adata)
-        model_adata.write_h5ad(filename=f'../result/deepair/adata/{m}_adata_pca_250927.h5ad')
+        model_adata.write_h5ad(filename=PROJECT_ROOT / f'result/deepair/adata/{m}_adata_pca_250927.h5ad')
 
 
 

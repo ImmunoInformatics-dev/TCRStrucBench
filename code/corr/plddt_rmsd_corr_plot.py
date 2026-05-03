@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
-
+from pathlib import Path
 # global
 plt.rcParams['axes.titlesize'] = 20 
 plt.rcParams['axes.labelsize'] = 20 
@@ -170,42 +170,43 @@ def scatter_plot(input_file1, input_file2, sheet_name, domain_ls, target, show=T
         plt.savefig(fig_file, dpi=300, bbox_inches='tight')
 
 if __name__ == '__main__':
-    os.chdir('../../')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
     # plddt_rmsd - paired
-    corr_stat(input_file1='../result/plddt/plddt_paired_summary.xlsx',
-              input_file2='../result/rmsd/rmsd_summary_paired.xlsx',
+    corr_stat(input_file1=PROJECT_ROOT / 'result/plddt/plddt_paired_summary.xlsx',
+              input_file2=PROJECT_ROOT / 'result/rmsd/rmsd_summary_paired.xlsx',
               sheet_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
               domain_ls=['Valpha', 'A-FWs', 'A-CDR1', 'A-CDR2', 'A-CDR3', 'Vbeta', 'B-FWs', 'B-CDR1', 'B-CDR2','B-CDR3'],
               target='RMSD',
-              out_file='../result/corr/corr_paired_plddt_rmsd.xlsx',
+              out_file=PROJECT_ROOT / 'result/corr/corr_paired_plddt_rmsd.xlsx',
               method=None,
               plot=True,
               show=False,
-              fig_file='../result/corr/corr_paired_plddt_rmsd.pdf')
+              fig_file=PROJECT_ROOT / 'result/corr/corr_paired_plddt_rmsd.pdf')
 
-    scatter_plot(input_file1='../result/plddt/plddt_paired_summary.xlsx',
-                 input_file2='../result/rmsd/rmsd_summary_paired.xlsx',
+    scatter_plot(input_file1=PROJECT_ROOT / 'result/plddt/plddt_paired_summary.xlsx',
+                 input_file2=PROJECT_ROOT / 'result/rmsd/rmsd_summary_paired.xlsx',
                  sheet_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
                  domain_ls=['Valpha', 'A-FWs', 'A-CDR1', 'A-CDR2', 'A-CDR3', 'Vbeta', 'B-FWs', 'B-CDR1', 'B-CDR2','B-CDR3'],
                  target='RMSD',
                  show=False,
-                 fig_file='../result/corr/scatterplot_paired_plddt_rmsd.pdf')
+                 fig_file=PROJECT_ROOT / 'result/corr/scatterplot_paired_plddt_rmsd.pdf')
     # plddt_rmsd - single
-    corr_stat(input_file1='../result/plddt/plddt_single_summary.xlsx',
-              input_file2='../result/rmsd/rmsd_summary_single.xlsx',
+    corr_stat(input_file1=PROJECT_ROOT / 'result/plddt/plddt_single_summary.xlsx',
+              input_file2=PROJECT_ROOT / 'result/rmsd/rmsd_summary_single.xlsx',
               sheet_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
               domain_ls=['Valpha', 'A-FWs', 'A-CDR1', 'A-CDR2', 'A-CDR3', 'Vbeta', 'B-FWs',  'B-CDR1', 'B-CDR2', 'B-CDR3'],
               target='RMSD',
-              out_file='../result/corr/corr_single_plddt_rmsd.xlsx',
+              out_file=PROJECT_ROOT / 'result/corr/corr_single_plddt_rmsd.xlsx',
               method=None,
               plot=True,
               show=False,
-              fig_file='../result/corr/corr_single_plddt_rmsd.pdf')
+              fig_file=PROJECT_ROOT / 'result/corr/corr_single_plddt_rmsd.pdf')
 
-    scatter_plot(input_file1='../result/plddt/plddt_single_summary.xlsx',
-                 input_file2='../result/rmsd/rmsd_summary_single.xlsx',
+    scatter_plot(input_file1=PROJECT_ROOT / 'result/plddt/plddt_single_summary.xlsx',
+                 input_file2=PROJECT_ROOT / 'result/rmsd/rmsd_summary_single.xlsx',
                  sheet_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'],
                  domain_ls=['Valpha', 'A-FWs', 'A-CDR1', 'A-CDR2', 'A-CDR3', 'Vbeta', 'B-FWs',  'B-CDR1', 'B-CDR2', 'B-CDR3'],
                  target='RMSD',
                  show=False,
-                 fig_file='../result/corr/scatterplot_single_plddt_rmsd.pdf')
+                 fig_file=PROJECT_ROOT / 'result/corr/scatterplot_single_plddt_rmsd.pdf')

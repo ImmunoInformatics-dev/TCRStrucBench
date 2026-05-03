@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from statannotations.Annotator import Annotator
 import json
-
+from pathlib import Path
 def data_extract(pair_rmsd_file, single_rmsd_file, dockq_file, sheet_name):
     dockq = pd.read_excel(dockq_file)
     dockq = dockq.rename(columns={'Unnamed: 0': 'PDB_ID'})
@@ -120,13 +120,14 @@ def box_plot_window(data,  x_lab, ylab, y, row_num, col_num, figsize, models,
         plt.close()
 
 if __name__ == '__main__':
-    os.chdir('../../')
-    group_info = pd.read_excel('../data/TCR_Group_Info.xlsx')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
+    group_info = pd.read_excel(PROJECT_ROOT / 'data/TCR_Group_Info.xlsx')
     group_info = group_info.rename(columns={'Unnamed: 0': 'PDB_ID'})
     group_info = group_info.dropna(axis='rows', how='any')
-    extract_df = data_extract(pair_rmsd_file='../result/rmsd/rmsd_summary_paired.xlsx',
-                              single_rmsd_file='../result/rmsd/rmsd_summary_single.xlsx',
-                              dockq_file='../result/dockq/DockQ_Models_summary.xlsx',
+    extract_df = data_extract(pair_rmsd_file=PROJECT_ROOT / 'result/rmsd/rmsd_summary_paired.xlsx',
+                              single_rmsd_file=PROJECT_ROOT / 'result/rmsd/rmsd_summary_single.xlsx',
+                              dockq_file=PROJECT_ROOT / 'result/dockq/DockQ_Models_summary.xlsx',
                               sheet_name=['AF2', 'TCRmodel2', 'AF3', 'ESMFoldv1', 'tfold-TCR'])
     pdb_ids = list(group_info['PDB_ID'])
     extract_df_filter = extract_df[[x in pdb_ids for x in extract_df['PDB_ID']]]
@@ -146,4 +147,4 @@ if __name__ == '__main__':
                     categories=groups, index_name=index_name,
                     sig_pairs=sig_pairs, orders=groups,
                     jitter=True,
-                    fig_path='../result/rmsd/HLA_Organism_group.pdf')
+                    fig_path=PROJECT_ROOT / 'result/rmsd/HLA_Organism_group.pdf')

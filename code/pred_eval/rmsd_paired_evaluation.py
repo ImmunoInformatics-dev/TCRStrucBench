@@ -9,8 +9,7 @@ import os
 import pymol
 from pymol import cmd
 import pandas as pd
-import json
-
+from pathlib import Path
 pymol.finish_launching(['pymol', '-c'])
 
 def calculate_dimer_rmsd(pred_path, crystal_file, chain_map, domain_sel=None, backbone=False):
@@ -96,9 +95,9 @@ def get_region_range(part_seq, whole_seq):
     return f'{start}-{end}'
 
 if __name__ == '__main__':
-    #
-    os.chdir(r'D:\\Z440\\Postdoctoral\\Research\\TCRsructure\\code')
-    tcr_info = pd.read_csv('../result/annotation/tcr_anno_df_v2_250908.csv')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
+    tcr_info = pd.read_csv(PROJECT_ROOT / 'result/annotation/tcr_anno_df_v2_250908.csv')
     tcr_info['PDB_ID'] = [x.split('_')[0] for x in tcr_info['Name']]
     tcr_info['FW1_r'] = [get_region_range(x, y) for x, y in zip(tcr_info['FW1'], tcr_info['Vdomain'])]
     tcr_info['FW2_r'] = [get_region_range(x, y) for x, y in zip(tcr_info['FW2'], tcr_info['Vdomain'])]
@@ -110,30 +109,29 @@ if __name__ == '__main__':
     tcr_info['CDR3_r'] = [get_region_range(x, y) for x, y in zip(tcr_info['CDR3'], tcr_info['Vdomain'])]
     pdb_ids = tcr_info['PDB_ID'].unique()
 
-    fixed_dir = '../data/fixed_struc_4'
+    fixed_dir = PROJECT_ROOT / 'data/fixed_struc_4'
 
     chain_map = {'A': 'A', 'B': 'B'}  # 经过pdb_clean_fixer后，晶体结构全变成双链AB了
     af2_rmsd = {}
     af3_rmsd = {}
     tcrmodel2_rmsd = {}
     tfold_rmsd = {}
-    esmfold2_rmsd = {}
+    esmfold_rmsd = {}
     for pdb_id in pdb_ids:
         # chain_map = chain_map_dict[pdb_id]
-        crystal_file = f'{fixed_dir}/{pdb_id}.pdb'
+        crystal_file = fixed_dir / f'{pdb_id}.pdb'
         tcr_sele = tcr_info[tcr_info['PDB_ID'] == pdb_id][tcr_info.columns[tcr_info.columns.str.endswith('_r')]]
         tcr_sele.index = ['A', 'B']
         range_dict = tcr_sele.T.to_dict()
         # af3
-        af3_file = f'../result/AF3/test2_paired/{pdb_id}.cif'
+        af3_file = PROJECT_ROOT / f'result/AF3/test_paired/{pdb_id}.cif'
         full_rmsd_af3, chain_rmsd_af3, domain_rmsd_af3 = calculate_dimer_rmsd(af3_file, crystal_file, chain_map, range_dict)
         af3_rmsd[pdb_id] = [full_rmsd_af3] + list(chain_rmsd_af3.values()) + list(pd.DataFrame(domain_rmsd_af3).unstack(level=1).values)
         
         # tfold-TCR
-        tfold_file = f'../result/tfold/test2_paired/{pdb_id}_TCR.pdb'
+        tfold_file = PROJECT_ROOT / f'result/tfold/test_paired/{pdb_id}_TCR.pdb'
         full_rmsd_tfold, chain_rmsd_tfold, domain_rmsd_tfold = calculate_dimer_rmsd(tfold_file, crystal_file, chain_map, range_dict)
         tfold_rmsd[pdb_id] = [full_rmsd_tfold] + list(chain_rmsd_tfold.values()) + list(pd.DataFrame(domain_rmsd_tfold).unstack(level=1).values)
-
         #
         col_names = ['PDB_ID', 'Vab', 'Valpha', 'Vbeta', 'A-FW1', 'A-FW2', 'A-FW3', 'A-FW4', 'A-FWs', 'A-CDR1', 'A-CDR2', 'A-CDR3',
                      'B-FW1', 'B-FW2', 'B-FW3', 'B-FW4', 'B-FWs', 'B-CDR1', 'B-CDR2', 'B-CDR3']
@@ -150,9 +148,9 @@ if __name__ == '__main__':
         tfold_rmsd_df = pd.DataFrame(tfold_rmsd).T.reset_index()
         tfold_rmsd_df.columns = col_names
 
-        esmfold2_rmsd_df = pd.DataFrame(esmfold2_rmsd).T.reset_index()
-        esmfold2_rmsd_df.columns = col_names
+        esmfold_rmsd_df = pd.DataFrame(esmfold_rmsd).T.reset_index()
+        esmfold_rmsd_df.columns = col_names
 
-        with pd.ExcelWriter(f'../result/rmsd/rmsd_summary_test2_paired_0908.xlsx', engine='openpyxl') as writer:
+        with pd.ExcelWriter(PROJECT_ROOT / f'result/rmsd/rmsd_summary_paired.xlsx', engine='openpyxl') as writer:
             af3_rmsd_df.to_excel(writer, sheet_name='AF3')
             tfold_rmsd_df.to_excel(writer, sheet_name='tfold-TCR')

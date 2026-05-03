@@ -6,6 +6,7 @@
 # @Author  : Qiang Huang
 # @File    :
 import pandas as pd
+from pathlib import Path
 from pymol import cmd, util
 import os
 import time
@@ -20,16 +21,17 @@ def find_median(numbers):
     return sorted_numbers[length // 2]
 
 if __name__ == '__main__':
-    os.chdir('../../')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
     models = ['AF3', 'tfold']
     for m in models:
-        model_dir = f"../result/deepair/foldseek_{m}_clu"
+        model_dir = PROJECT_ROOT / f"/result/deepair/foldseek_{m}_clu"
         for clu in os.listdir(model_dir):
-            input_dir = f"{model_dir}/{clu}"
-            output_dir = f"{model_dir}/{clu}_aligned"
+            input_dir = model_dir / clu
+            output_dir = model_dir / f'{clu}_aligned'
             os.makedirs(output_dir, exist_ok=True)
 
-            logging.basicConfig(filename=f'{output_dir}/structure_alignment.log',
+            logging.basicConfig(filename=output_dir / 'structure_alignment.log',
                                 level=logging.INFO,
                                 format='%(asctime)s - %(levelname)s - %(message)s')
             # file names
@@ -82,7 +84,7 @@ if __name__ == '__main__':
             rmsd_values = [r[1] for r in alignment_results]
             structure_files.pop(median_id)
             rmsd_values_df = pd.DataFrame(rmsd_values, index=structure_files, columns=['RMSD'])
-            rmsd_values_df.to_csv(f'{output_dir}/rmsd_values_df_250925.csv')
+            rmsd_values_df.to_csv(output_dir / 'rmsd_values_df_250925.csv')
             # print log
             print("\n=== Abstract ===")
             print(f"Inference sturc: {reference}")
@@ -97,23 +99,19 @@ if __name__ == '__main__':
                 # create
                 aligned_group = "aligned_structures"
                 cmd.create(aligned_group, " or ".join(structures))
-
                 # style
                 cmd.show("cartoon", aligned_group)
                 cmd.set("cartoon_transparency", 0.7, aligned_group)
-
                 # others with gray
                 for i, structure in enumerate(structures[1:]):
                     color_name = f"color_{i}"
                     cmd.set_color(color_name, [i / len(structures), 0.5, 1.0 - i / len(structures)])
                     util.color_carbon(color_name, structure)
                 util.color_carbon("magenta", reference)
-
                 # background
                 cmd.bg_color("white")
                 cmd.orient(aligned_group)
                 cmd.zoom(aligned_group, 5)  # zoom 5 fold
-
                 # save
                 session_path = os.path.join(output_dir, "aligned_structures.pse")
                 cmd.save(session_path)

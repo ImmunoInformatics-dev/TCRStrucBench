@@ -9,6 +9,7 @@ import os
 import numpy as np
 import pandas as pd
 from Bio.PDB import PDBParser, MMCIFParser
+from pathlib import Path
 def region_dict_product(df, key_col, seq_col, FWs=True, pair_mode=True):
     for colname in key_col:
         df[f'{colname}_r'] = [get_region_range(x, y) for x, y in zip(df[colname], df[seq_col])]
@@ -79,8 +80,9 @@ def stack_chain_out(plddt_df, index_col, pdb_col, chain_col, new_colname):
     return plddt_df_w
 
 if __name__ == '__main__':
-    os.chdir(r'D:\\USER\\Research\\TCRsructure\\code')
-    tcr_info = pd.read_csv('../result/annotation/tcr_anno_df.csv')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
+    tcr_info = pd.read_csv(PROJECT_ROOT / 'result/annotation/tcr_anno_df.csv')
     tcr_info = region_dict_product(tcr_info,
                                    key_col=['FW1', 'FW2', 'FW3', 'FW4', 'CDR1', 'CDR2', 'CDR3'],
                                    seq_col='Vdomain', FWs=True, pair_mode=False)
@@ -90,7 +92,7 @@ if __name__ == '__main__':
     af3_plddt = {}
     tcrmodel2_plddt = {}
     tfold_plddt = {}
-    esmfold2_plddt = {}
+    esmfold_plddt = {}
     for idx, pdb_chain in enumerate(pdb_chains):
         pdb_id = pdb_chain.split('_')[0]
         tcr_sele = tcr_info[tcr_info['Name'] == pdb_chain][tcr_info.columns[tcr_info.columns.str.endswith('_r')]]
@@ -102,25 +104,25 @@ if __name__ == '__main__':
             tcr_sele.index = ['B']
         range_dict = tcr_sele.T.to_dict()[chain_id]
         # AF2
-        file_af2 = f'../result/AF2/test_single/{pdb_chain}.pdb'  
+        file_af2 = PROJECT_ROOT / f'result/AF2/test_single/{pdb_chain}.pdb'
         chain_data_af2, region_plddt_af2 = get_single_chain_plddt(file_af2, chain_id, range_dict)
         af2_plddt[pdb_chain] = list(chain_data_af2.values()) + list(pd.DataFrame(region_plddt_af2, index=[0]).T[0])
         # AF3
-        file_af3 = f'../result/AF3/test_single/{pdb_chain}.cif'  
+        file_af3 = PROJECT_ROOT / f'result/AF3/test_single/{pdb_chain}.cif'
         chain_data_af3, region_plddt_af3 = get_single_chain_plddt(file_af3, chain_id, range_dict)
         af3_plddt[pdb_chain] = list(chain_data_af3.values()) + list(pd.DataFrame(region_plddt_af3, index=[0]).T[0])
         # TCRmodel2
-        file_tcrm2 = f'../result/tcrmodel2/test_single/{pdb_chain}.pdb'  
+        file_tcrm2 = PROJECT_ROOT / f'result/tcrmodel2/test_single/{pdb_chain}.pdb'
         chain_data_tcrm2, region_plddt_tcrm2 = get_single_chain_plddt(file_tcrm2, chain_id, range_dict)
         tcrmodel2_plddt[pdb_chain] = list(chain_data_tcrm2.values()) + list(pd.DataFrame(region_plddt_tcrm2, index=[0]).T[0])
         # tfold-TCR
-        file_tfold = f'../result/tfold/test_single/{pdb_chain}_TCR.pdb'  
+        file_tfold = PROJECT_ROOT / f'result/tfold/test_single/{pdb_chain}_TCR.pdb'
         chain_data_tfold, region_plddt_tfold = get_single_chain_plddt(file_tfold, chain_id, range_dict)
         tfold_plddt[pdb_chain] = list(chain_data_tfold.values()) + list(pd.DataFrame(region_plddt_tfold, index=[0]).T[0])
-        # ESMFold2
-        file_esm2 = f'../result/ESMFold2/test_single/{pdb_chain}.pdb'  
+        # ESMFold
+        file_esm2 = PROJECT_ROOT / f'result/ESMFold/test_single/{pdb_chain}.pdb'
         chain_data_esm2, region_plddt_esm2 = get_single_chain_plddt(file_esm2, chain_id, range_dict)
-        esmfold2_plddt[pdb_chain] = list(chain_data_esm2.values()) + list(pd.DataFrame(region_plddt_esm2, index=[0]).T[0])
+        esmfold_plddt[pdb_chain] = list(chain_data_esm2.values()) + list(pd.DataFrame(region_plddt_esm2, index=[0]).T[0])
 
 
     #
@@ -138,12 +140,12 @@ if __name__ == '__main__':
     tfold_plddt_df = pd.DataFrame(tfold_plddt).T.reset_index()
     tfold_plddt_df = stack_chain_out(tfold_plddt_df, index_col='index', pdb_col='PDB_ID', chain_col='Chain', new_colname=col_names)
 
-    esmfold2_plddt_df = pd.DataFrame(esmfold2_plddt).T.reset_index()
-    esmfold2_plddt_df = stack_chain_out(esmfold2_plddt_df, index_col='index', pdb_col='PDB_ID', chain_col='Chain', new_colname=col_names)
+    esmfold_plddt_df = pd.DataFrame(esmfold_plddt).T.reset_index()
+    esmfold_plddt_df = stack_chain_out(esmfold_plddt_df, index_col='index', pdb_col='PDB_ID', chain_col='Chain', new_colname=col_names)
 
-    with pd.ExcelWriter('../result/plddt/plddt_single_summary_test_single.xlsx', engine='openpyxl') as writer:
+    with pd.ExcelWriter(PROJECT_ROOT / f'result/plddt/plddt_single_summary_test_single.xlsx', engine='openpyxl') as writer:
         af2_plddt_df.to_excel(writer, sheet_name='AF2')
         tcrmodel2_plddt_df.to_excel(writer, sheet_name='TCRmodel2')
-        esmfold2_plddt_df.to_excel(writer, sheet_name='ESMFoldv1')
+        esmfold_plddt_df.to_excel(writer, sheet_name='ESMFoldv1')
         tfold_plddt_df.to_excel(writer, sheet_name='tfold-TCR')
         af3_plddt_df.to_excel(writer, sheet_name='AF3')

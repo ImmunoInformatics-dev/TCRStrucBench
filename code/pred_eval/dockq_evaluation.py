@@ -5,6 +5,7 @@
 # @Time    : 2025/6/9
 # @Author  : Qiang Huang
 # @File    :
+from pathlib import Path
 import pymol, json, os
 import pandas as pd
 import numpy as np
@@ -37,8 +38,9 @@ def cal_dockq(pred_file, cry_file, chain_map = {"A": "A", "B": "B"}):
     return out_dq
 
 if __name__ == '__main__':
-    os.chdir(r'D:\\USER\\Research\\TCRsructure\\code')
-    tcr_anno = pd.read_csv("../result/annotation/tcr_anno_df.csv")
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
+    tcr_anno = pd.read_csv(PROJECT_ROOT / "result/annotation/tcr_anno_df.csv")
     tcr_names = tcr_anno['Name']
     pdb_ids2 = [x.split('_')[0] for x in tcr_names]
     pdb_ids = np.unique(pdb_ids2)
@@ -51,10 +53,10 @@ if __name__ == '__main__':
             tcr_seq_dic.update({kk: [vv]})
 
     #
-    with open('../data/chain_map_dict_test.json', 'r') as f:
+    with open(PROJECT_ROOT / 'data/chain_map_dict_test.json', 'r') as f:
         chain_map_dict = json.load(f)
-    input_dir = '../data/fixed_struc_test'
-    output_dir = '../data/nohydro_trim_test'
+    input_dir = PROJECT_ROOT / 'data/fixed_struc_test'
+    output_dir = PROJECT_ROOT / 'data/nohydro_trim_test'
     os.makedirs(output_dir, exist_ok=True)
     #
     dq_af2 = {}
@@ -64,26 +66,26 @@ if __name__ == '__main__':
     dq_esm2 = {}
     dq_tfold = {}
     for pdb_id in pdb_ids:
-        input_file = f'{input_dir}/{pdb_id}.pdb'
-        output_clean = f'{output_dir}/{pdb_id}.pdb'
+        input_file = input_dir / f'{pdb_id}.pdb'
+        output_clean = output_dir / f'{pdb_id}.pdb'
         Vab_seq = tcr_seq_dic[pdb_id]
         if not os.path.exists(output_clean):
             clean_hydro_trim(input_file, Vab_seq, output_clean, pdb_id)
 
         # AF2
-        pred_af2 = f'../result/AF2/test_paired/{pdb_id}.pdb'
+        pred_af2 = PROJECT_ROOT / f'result/AF2/test_paired/{pdb_id}.pdb'
         dq_af2[pdb_id] = cal_dockq(pred_af2, output_clean, chain_map={"A": "A", "B": "B"})
         # AF3
-        pred_af3 = f'../result/AF3/test_paired/{pdb_id}.cif'
+        pred_af3 = PROJECT_ROOT / f'result/AF3/test_paired/{pdb_id}.cif'
         dq_af3[pdb_id] = cal_dockq(pred_af3, output_clean, chain_map={"A": "A", "B": "B"})
         # TCRmodel2
-        pred_tcm2 = f'../result/tcrmodel2/test_paired/{pdb_id}.pdb'
+        pred_tcm2 = PROJECT_ROOT / f'result/tcrmodel2/test_paired/{pdb_id}.pdb'
         dq_tcm2[pdb_id] = cal_dockq(pred_tcm2, output_clean, chain_map={"A": "A", "B": "B"})
-        # ESMFold2
-        pred_esm2 = f'../result/ESMFold2/test_paired/{pdb_id}.pdb'
+        # ESMFold
+        pred_esm2 = PROJECT_ROOT / f'result/ESMFold/test_paired/{pdb_id}.pdb'
         dq_esm2[pdb_id] = cal_dockq(pred_esm2, output_clean, chain_map={"A": "A", "B": "B"})
         # tfold-tcr
-        pred_tfold = f'../result/tfold/test_paired/{pdb_id}_TCR.pdb'
+        pred_tfold = PROJECT_ROOT / f'result/tfold/test_paired/{pdb_id}_TCR.pdb'
         dq_tfold[pdb_id] = cal_dockq(pred_tfold, output_clean, chain_map={"A": "A", "B": "B"})
 
         # aggregate
@@ -98,15 +100,15 @@ if __name__ == '__main__':
         tcrmodel2_dockq_df = pd.DataFrame(dq_tcm2).T.reset_index()
         tcrmodel2_dockq_df.columns = col_names
 
-        esmfold2_dockq_df = pd.DataFrame(dq_esm2).T.reset_index()
-        esmfold2_dockq_df.columns = col_names
+        esmfold_dockq_df = pd.DataFrame(dq_esm2).T.reset_index()
+        esmfold_dockq_df.columns = col_names
 
         tfold_dockq_df = pd.DataFrame(dq_tfold).T.reset_index()
         tfold_dockq_df.columns = col_names
 
-        with pd.ExcelWriter(f'../result/dockq/dockq_summary_test_paired.xlsx', engine='openpyxl') as writer:
+        with pd.ExcelWriter(PROJECT_ROOT / 'result/dockq/dockq_summary_test_paired.xlsx', engine='openpyxl') as writer:
             af2_dockq_df.to_excel(writer, sheet_name='AF2')
             af3_dockq_df.to_excel(writer, sheet_name='AF3')
-            esmfold2_dockq_df.to_excel(writer, sheet_name='ESMFoldv1')
+            esmfold_dockq_df.to_excel(writer, sheet_name='ESMFoldv1')
             tcrmodel2_dockq_df.to_excel(writer, sheet_name='TCRmodel2')
             tfold_dockq_df.to_excel(writer, sheet_name='tfold-TCR')

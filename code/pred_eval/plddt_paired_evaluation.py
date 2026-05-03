@@ -9,7 +9,7 @@ import os
 import numpy as np
 import pandas as pd
 from Bio.PDB import PDBParser, MMCIFParser
-
+from pathlib import Path
 #
 def get_pair_chain_plddt(structure_file, range_dic):
     """
@@ -69,8 +69,9 @@ def get_region_range(part_seq, whole_seq):
     return [start, end]
 #
 if __name__ == '__main__':
-    os.chdir(r'D:\\USER\\Research\\TCRsructure\\code')
-    tcr_info = pd.read_csv('../result/annotation/tcr_anno_df.csv')
+    CURRENT_DIR = Path(__file__).resolve().parent
+    PROJECT_ROOT = CURRENT_DIR.parent.parent
+    tcr_info = pd.read_csv(PROJECT_ROOT / 'result/annotation/tcr_anno_df.csv')
     tcr_info['PDB_ID'] = [x.split('_')[0] for x in tcr_info['Name']]
     tcr_info['FW1_r'] = [get_region_range(x, y) for x, y in zip(tcr_info['FW1'], tcr_info['Vdomain'])]
     tcr_info['FW2_r'] = [get_region_range(x, y) for x, y in zip(tcr_info['FW2'], tcr_info['Vdomain'])]
@@ -86,31 +87,31 @@ if __name__ == '__main__':
     af3_plddt = {}
     tcrmodel2_plddt = {}
     tfold_plddt = {}
-    esmfold2_plddt = {}
+    esmfold_plddt = {}
     for pdb_id in pdb_ids:
         tcr_sele = tcr_info[tcr_info['PDB_ID'] == pdb_id][tcr_info.columns[tcr_info.columns.str.endswith('_r')]]
         tcr_sele.index = ['A', 'B']
         range_dict = tcr_sele.T.to_dict()
         # AF2
-        file_af2 = f'../result/AF2/test_paired/{pdb_id}.pdb' 
+        file_af2 = PROJECT_ROOT / f'result/AF2/test_paired/{pdb_id}.pdb'
         _, avg_ab_af2, chain_data_af2, region_plddt_af2 = get_pair_chain_plddt(file_af2, range_dict)
         af2_plddt[pdb_id] = [avg_ab_af2] + list(chain_data_af2.values()) + list(pd.DataFrame(region_plddt_af2).unstack(level=1).values)
         # AF3
-        file_af3 = f'../result/AF3/test_paired/{pdb_id}.cif' 
+        file_af3 = PROJECT_ROOT / f'result/AF3/test_paired/{pdb_id}.cif'
         _, avg_ab_af3, chain_data_af3, region_plddt_af3 = get_pair_chain_plddt(file_af3, range_dict)
         af3_plddt[pdb_id] = [avg_ab_af3] + list(chain_data_af3.values()) + list(pd.DataFrame(region_plddt_af3).unstack(level=1).values)
         # TCRmodel2
-        file_tcrm2 = f'../result/tcrmodel2/test_paired/{pdb_id}.pdb' 
+        file_tcrm2 = PROJECT_ROOT / f'result/tcrmodel2/test_paired/{pdb_id}.pdb'
         _, avg_ab_tcrm2, chain_data_tcrm2, region_plddt_tcrm2 = get_pair_chain_plddt(file_tcrm2, range_dict)
         tcrmodel2_plddt[pdb_id] = [avg_ab_tcrm2] + list(chain_data_tcrm2.values()) + list(pd.DataFrame(region_plddt_tcrm2).unstack(level=1).values)
         # tfold-TCR
-        file_tfold = f'../result/tfold/test_paired/{pdb_id}_TCR.pdb' 
+        file_tfold = PROJECT_ROOT / f'result/tfold/test_paired/{pdb_id}_TCR.pdb'
         _, avg_ab_tfold, chain_data_tfold, region_plddt_tfold = get_pair_chain_plddt(file_tfold, range_dict)
         tfold_plddt[pdb_id] = [avg_ab_tfold] + list(chain_data_tfold.values()) + list(pd.DataFrame(region_plddt_tfold).unstack(level=1).values)
-        # ESMFold2
-        file_esm2 = f'../result/ESMFold2/test_paired/{pdb_id}.pdb' 
+        # ESMFold
+        file_esm2 = PROJECT_ROOT / f'result/ESMFold/test_paired/{pdb_id}.pdb'
         _, avg_ab_esm2, chain_data_esm2, region_plddt_esm2 = get_pair_chain_plddt(file_esm2, range_dict)
-        esmfold2_plddt[pdb_id] = [avg_ab_esm2] + list(chain_data_esm2.values()) + list(pd.DataFrame(region_plddt_esm2).unstack(level=1).values)
+        esmfold_plddt[pdb_id] = [avg_ab_esm2] + list(chain_data_esm2.values()) + list(pd.DataFrame(region_plddt_esm2).unstack(level=1).values)
 
 
     #
@@ -128,12 +129,12 @@ if __name__ == '__main__':
     tfold_plddt_df = pd.DataFrame(tfold_plddt).T.reset_index()
     tfold_plddt_df.columns = col_names
 
-    esmfold2_plddt_df = pd.DataFrame(esmfold2_plddt).T.reset_index()
-    esmfold2_plddt_df.columns = col_names
+    esmfold_plddt_df = pd.DataFrame(esmfold_plddt).T.reset_index()
+    esmfold_plddt_df.columns = col_names
 
-    with pd.ExcelWriter('../result/plddt/plddt_summary_test_paired.xlsx', engine='openpyxl') as writer:
+    with pd.ExcelWriter(PROJECT_ROOT / 'result/plddt/plddt_summary_test_paired.xlsx', engine='openpyxl') as writer:
         af2_plddt_df.to_excel(writer, sheet_name='AF2')
         tcrmodel2_plddt_df.to_excel(writer, sheet_name='TCRmodel2')
-        esmfold2_plddt_df.to_excel(writer, sheet_name='ESMFoldv1')
+        esmfold_plddt_df.to_excel(writer, sheet_name='ESMFoldv1')
         tfold_plddt_df.to_excel(writer, sheet_name='tfold-TCR')
         af3_plddt_df.to_excel(writer, sheet_name='AF3')
