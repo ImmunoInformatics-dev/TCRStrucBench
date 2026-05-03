@@ -18,14 +18,15 @@ conda activate TCRStrucBench
 ```
 
 ## 💾 Data Preparation
-Due to file size constraints, large intermediate files are hosted externally. However, the essential data files required to run the evaluation pipeline are included in this repository (in ./data and ./result directory).
+Due to file size constraints, large intermediate files are hosted externally.  
+However, the essential data files required to run the evaluation pipeline are included in this repository (in ./data and ./result directory).
 
 ## 🚀 Step-by-Step Reproduction
-Step 1: Annotate the TCR sequences, clean and fix pdb files. (in ./data_process directory)
-Step 2: Evaluate structural prediction performance, calculates the comparative metrics (pLDDT, pTM, RMSD) across different models. (in ./pred_eval directory)
-Step 3: Correlation analysis could be found in ./corr directory.
-Step 4: Scripts of quality evaluation model are located in ./classifiers directory.
-Step 5: Cluster analysis could be found in ./cluster directory.
+Step 1: Annotate the TCR sequences, clean and fix pdb files. (in ./data_process directory)  
+Step 2: Evaluate structural prediction performance, calculates the comparative metrics (pLDDT, pTM, RMSD) across different models. (in ./pred_eval directory)  
+Step 3: Correlation analysis could be found in ./corr directory.  
+Step 4: Scripts of quality evaluation model are located in ./classifiers directory.  
+Step 5: Cluster analysis could be found in ./cluster directory.  
 
 ## 📧 Contact
 For any questions regarding the code or data, please open an issue or contact Fu-rong Qi at qifurong2012@gmail.com.
