@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project :
-# @Purpose :
-# @Time    : 2025/9/27
-# @Author  : Qiang Huang
-# @File    :
+
 '''
-    shannon diversity for emb cluster，boxplot
+    shannon diversity for emb cluster, boxplot
 '''
 from pathlib import Path
 from datetime import datetime

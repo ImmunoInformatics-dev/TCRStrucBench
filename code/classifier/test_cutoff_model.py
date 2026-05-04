@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project :
-# @Purpose :
-# @Time    : 2025/9/23
-# @Author  : Qiang Huang
-# @File    : cutoff_model_for_single.py
-
+'''
+    test the cutoff performance with OOB dataset
+'''
 import os
 from pathlib import Path
 from datetime import datetime

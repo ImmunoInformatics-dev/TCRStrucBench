@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TRCStruc
-# @Purpose : evaluation with different index
-# @Time    : 2025/9/8
-# @Author  : Qiang Huang
-# @File    : rmsd_evaluation_250422.py
+'''
+    calculate the RMSD value at paired mode
+'''
 import os
 import pymol
 from pymol import cmd

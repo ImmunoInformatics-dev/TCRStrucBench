@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TCRstruc
-# @Purpose : visualize the evaluation index
-# @Time    : 2025/9/22
-# @Author  : Qiang Huang
-# @File    : plot_250428.py
+'''
+    calculate the correlation between plddt and rmsd in CDR3 domain
+'''
 import os
 
 import pandas as pd

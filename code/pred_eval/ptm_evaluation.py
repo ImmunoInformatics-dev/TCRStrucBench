@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TRCStruc
-# @Purpose : evaluation DockQ
-# @Time    : 2025/6/24
-# @Author  : Qiang Huang
-# @File    :
+'''
+    extract the ptm and iptm value at paired mode
+'''
 import os
 
 import pandas as pd

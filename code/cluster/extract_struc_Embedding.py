@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project :
-# @Purpose :
-# @Time    : 2025/9/27
-# @Author  : Qiang Huang
-# @File    :
+'''
+    extract the structure embedding from AF3 and tfold-TCR
+'''
 from pathlib import Path
 import anndata as ad
 import scanpy as sc

@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project :
-# @Purpose :
-# @Time    : 2025/9/22
-# @Author  : Qiang Huang
-# @File    :
+'''
+    compare the rmsd and dockq among MHC and Organism group
+'''
 import itertools
 import os
 

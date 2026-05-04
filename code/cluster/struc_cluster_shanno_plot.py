@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project :
-# @Purpose :
-# @Time    : 2025/10/22
-# @Author  : Qiang Huang
-# @File    :
+
 '''
     shannon diversity for struc cluster, boxplot
 '''

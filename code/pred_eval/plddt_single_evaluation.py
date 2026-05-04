@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TRCStruc
-# @Purpose : evaluation with different index
-# @Time    : 2025/6/23
-# @Author  : Qiang Huang
-# @File    : 
+'''
+    calculate the plddt value at single mode
+'''
 import os
 import numpy as np
 import pandas as pd

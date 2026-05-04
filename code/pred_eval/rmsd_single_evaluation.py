@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TRCStruc
-# @Purpose : evaluation with different index
-# @Time    : 2025/8/04
-# @Author  : Qiang Huang
-# @File    :
+'''
+    calculate the RMSD value at single mode
+'''
 import os
 import pymol
 from pymol import cmd

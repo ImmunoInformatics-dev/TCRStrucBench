@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project :
-# @Purpose :
-# @Time    : 2025/9/25
-# @Author  : Qiang Huang
-# @File    :
+
 '''
     extract IRS and DIE major cluster sequence for alignment
 '''

@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project :
-# @Purpose :
-# @Time    : 2025/9/22
-# @Author  : Qiang Huang
-# @File    :
-
+'''
+    grid search with CV to find the best cutoff model at each condition
+'''
 from pathlib import Path
 from datetime import datetime
 import numpy as np

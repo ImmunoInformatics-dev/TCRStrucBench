@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TRCStruc
-# @Purpose : evaluation with different index
-# @Time    : 2025/8/04
-# @Author  : Qiang Huang
-# @File    : 
+'''
+    calculate the plddt value at paired mode
+'''
 import os
 import numpy as np
 import pandas as pd

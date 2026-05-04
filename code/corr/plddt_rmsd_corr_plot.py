@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TCRstruc
-# @Purpose : visualize the evaluation index
-# @Time    : 2025/9/15
-# @Author  : Qiang Huang
-# @File    : 
+'''
+    calculate the correlation between plddt and rmsd
+'''
 import os
 
 import pandas as pd

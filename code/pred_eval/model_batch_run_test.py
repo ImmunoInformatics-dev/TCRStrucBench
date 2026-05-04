@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TCRstruc
-# @Purpose : produce the code for different model
-# @Time    : 2025/9/2
-# @Author  : Qiang Huang
-# @File    : batch_run_code.py
+'''
+    batchly produce the prediction codes for five models
+'''
 import os
 import pandas as pd
 import json

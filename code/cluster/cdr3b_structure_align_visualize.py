@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project :
-# @Purpose :
-# @Time    : 2025/9/25
-# @Author  : Qiang Huang
-# @File    :
+
 import pandas as pd
 from pathlib import Path
 from pymol import cmd, util

@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project :
-# @Purpose :
-# @Time    : 2025/9/08
-# @Author  : Qiang Huang
-# @File    : pdbfixer.py
+'''
+    clean the pdb files
+'''
 import json
 import os
 import pymol

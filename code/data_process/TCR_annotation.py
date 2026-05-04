@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TCRstruc
-# @Purpose : annotate the TCR aa sequence with anarci
-# @Time    : 2025/9/02
-# @Author  : Qiang Huang
-# @File    : TCR_aa_annotation.py
+'''
+    annotate the tcr sequences with anarci
+'''
 import os
 from Bio import SeqIO
 import subprocess

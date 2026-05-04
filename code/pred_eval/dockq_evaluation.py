@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Project : TRCStruc
-# @Purpose : evaluation DockQ
-# @Time    : 2025/6/9
-# @Author  : Qiang Huang
-# @File    :
+'''
+    calculate the dockq
+'''
 from pathlib import Path
 import pymol, json, os
 import pandas as pd
